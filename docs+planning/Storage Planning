@@ -1,0 +1,8 @@
+Object Storage:
+Garage (S3)
+    docker quirks
+        executable is located in /, not $path. use direct location as command "/garage"
+        need to build clusters at first run in order to create buckets:
+             /garage layout assign -z <datacenter_name> -c <capacity> <node_id>
+             /garage layout show
+             /garage layout apply --version <version>

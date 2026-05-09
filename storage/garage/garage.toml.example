@@ -1,0 +1,26 @@
+replication_factor = 1 //for single-node use, expandable to multi-node use.
+consistency_mode = "consistent" //see garage docs for details
+
+metadata_dir = "PERMANENT_STORAGE_DIRECTORY/meta"
+data_dir = "PERMANENT_STORAGE_DIRECTORY/data"
+db_engine = "sqlite"
+
+
+rpc_bind_addr = "[::]:3901"
+rpc_public_addr = "127.0.0.1:3901"
+rpc_secret = "run <openssl random -hex 32> for this value"
+
+[s3_api]
+s3_region = "garage"
+api_bind_addr = "[::]:3900"
+root_domain = ".s3.garage.localhost"
+
+[s3_web]
+bind_addr = "[::]:3902"
+root_domain = ".web.garage.localhost"
+index = "index.html"
+
+[admin]
+api_bind_addr = "[::]:3903"
+admin_token = "run <openssl random -hex 32> for this value"
+metrics_token = "run <openssl random -hex 32> for this value"

@@ -1,0 +1,45 @@
+services:
+  dev:
+    container_name: dev
+    image: serversideup/php:8.5-fpm-apache
+    ports:
+      - "8080:8080"
+    networks:
+      - public_network
+    environment:
+      PHP_OPCACHE_ENABLE: "1"
+      PHP_MEMORY_LIMIT: "512M"
+      AUTORUN_ENABLED: "true"
+    volumes:
+      - ./:/var/www/html/
+
+  flarum:
+    image: mondedie/flarum:stable
+    container_name: flarum_dev
+    env_file:
+      - ./forum.env
+    volumes:
+      - ./storage/forum/assets:/flarum/app/public/assets
+      - ./storage/forum/extensions:/flarum/app/extensions
+      - ./storage/forum/storage/logs:/flarum/app/storage/logs
+      - ./storage/forum/nginx:/etc/nginx/flarum
+      - ./storage/forum/storage/config.php:/flarum/app/config.php
+    ports:
+      - 8180:8888
+    # networks:
+    #   - public_network
+
+  node_dev:
+    image: node:20-alpine
+    container_name: node_dev
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "npm install && npm install -y && npm run dev --https"
+    restart: always
+#    environment:
+#      - NODE_ENV=production
+#    networks:
+#      - public_network
+#networks:
+#  public_network:

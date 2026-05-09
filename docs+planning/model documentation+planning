@@ -1,0 +1,29 @@
+----User----
+No migrations required
+InteractsWithMedia
+
+----Collaborator----
+(assume is a user model but listed here for future changes)
+
+------------------------------------------------Owns-------------------------------------------
+----Design----
+ owner_id/owner_type (poly)
+ InteractsWithMedia
+
+----Component----
+ owner_id/owner_type (poly)
+ InteractsWithMedia
+-----------------------------------------------Interacts Through-------------------------------
+metadata will be stored in payload, media and uploads will be managed through Spatie Media Library
+
+----Design_Collaborator (designs_users)----
+requires model for Spatie Media Library and methods
+morphs(collaborator)
+foreign(design_id)
+json(payload)
+
+----Component_Design----
+requires model for Spatie Media Library and methods
+foreign(component_id)
+foreign(design_id)
+json(payload)
