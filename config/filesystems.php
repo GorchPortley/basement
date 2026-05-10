@@ -47,18 +47,51 @@ return [
             'report' => false,
         ],
 
-        's3' => [
-            'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
-            'report' => false,
-        ],
+        // 's3' => [
+        //     'driver' => 's3',
+        //     'key' => env('AWS_ACCESS_KEY_ID'),
+        //     'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        //     'region' => env('AWS_DEFAULT_REGION'),
+        //     'bucket' => env('AWS_BUCKET'),
+        //     'url' => env('AWS_URL'),
+        //     'endpoint' => env('AWS_ENDPOINT'),
+        //     'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+        //     'throw' => false,
+        //     'report' => false,
+        // ],
+
+    'garage_uploads' => [
+        'driver'                  => 's3',
+        'key'                     => env('GARAGE_KEY'),
+        'secret'                  => env('GARAGE_SECRET'),
+        'region'                  => env('GARAGE_REGION', 'garage'),
+        'bucket'                  => env('GARAGE_BUCKET_UPLOADS'),
+        'endpoint'                => env('GARAGE_ENDPOINT'),
+        'use_path_style_endpoint' => true,
+        'throw'                   => true,
+    ],
+
+    'garage_assets' => [
+        'driver'                  => 's3',
+        'key'                     => env('GARAGE_KEY'),
+        'secret'                  => env('GARAGE_SECRET'),
+        'region'                  => env('GARAGE_REGION', 'garage'),
+        'bucket'                  => env('GARAGE_BUCKET_ASSETS'),
+        'endpoint'                => env('GARAGE_ENDPOINT'),
+        'use_path_style_endpoint' => true,
+        'throw'                   => true,
+    ],
+
+    'garage_tmp' => [
+        'driver'                  => 's3',
+        'key'                     => env('GARAGE_KEY'),
+        'secret'                  => env('GARAGE_SECRET'),
+        'region'                  => env('GARAGE_REGION', 'garage'),
+        'bucket'                  => env('GARAGE_BUCKET_TMP'),
+        'endpoint'                => env('GARAGE_ENDPOINT'),
+        'use_path_style_endpoint' => true,
+        'throw'                   => true,
+    ],
 
     ],
 
