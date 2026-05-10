@@ -26,8 +26,8 @@ services:
       - ./storage/forum/storage/config.php:/flarum/app/config.php
     ports:
       - 8180:8888
-    # networks:
-    #   - public_network
+    networks:
+      - public_network
 
   node_dev:
     image: node:20-alpine
@@ -35,11 +35,41 @@ services:
     working_dir: /app
     volumes:
       - ./:/app
-    command: sh -c "npm install && npm install -y && npm run dev --https"
+    command: sh -c "npm install && npm install -y && npm run dev --https" #important: delete hotfile in public folder or else assets wont load properly!
     restart: always
-#    environment:
-#      - NODE_ENV=production
-#    networks:
-#      - public_network
-#networks:
-#  public_network:
+    networks:
+     - public_network
+
+  garage_dev:
+    image: dxflrs/garage:v2.3.0
+    container_name: garage_dev
+    volumes:
+      - ./storage/garage/garage.toml:/etc/garage.toml
+      - ./storage/garage/meta:/var/lib/garage/meta
+      - ./storage/garage/data:/var/lib/garage/data
+    restart: unless-stopped
+    ports:
+      - 3900:3900
+      - 3901:3901
+      - 3902:3902
+      - 3903:3903
+    networks:
+      - public_network
+      
+  s3_webui_dev:
+    image: khairul169/garage-webui:latest
+    container_name: garage-webui
+    restart: unless-stopped
+    volumes:
+      - ./storage/garage/garage.toml:/etc/garage.toml:ro #get garage.toml from garage.toml.example in same directory
+    ports:
+      - 3909:3909
+    networks:
+      - public_network
+    environment:
+      #No authentication, see github for authentication instructions.
+      API_BASE_URL: "http://garage_dev:3903"
+      S3_ENDPOINT_URL: "http://garage_dev:3900"
+
+networks:
+ public_network:

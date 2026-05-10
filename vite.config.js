@@ -19,6 +19,7 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
+        hmr: false,
         https: true,
         cors: true,
         watch: {
