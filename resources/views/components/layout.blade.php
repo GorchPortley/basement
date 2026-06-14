@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html>
     <head>
         @include('partials.head')
     </head>
     <body>
+        @include('components.nav')
         {{ $slot }}
     </body>
 </html>

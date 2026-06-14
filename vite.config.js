@@ -10,18 +10,12 @@ export default defineConfig({
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
-            fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
-                }),
-            ],
         }),
         tailwindcss(),
     ],
     server: {
-        hmr: false,
-        https: true,
-        cors: true,
+        host: '192.168.1.5',
+        allowedHosts: true,
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },
