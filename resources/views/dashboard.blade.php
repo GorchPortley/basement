@@ -1,3 +1,3 @@
-<x-layouts::app.dashboard :title="__('Dashboard')">
-
-</x-layouts::app.dashboard>
+<x-layouts::app :title="__('Dashboard')">
+DASHBOARD
+</x-layouts::app>

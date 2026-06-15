@@ -48,7 +48,7 @@ class ForumAuthenticationController extends Controller
 
     public static function logoutUser($event) {
         $user = $event->user;
-    $response = Http::get('https://forumsb.sdlabs.cc/logout?token=' . $user->forum_token);
+    $response = Http::get('http://forumsb.sdlabs.cc/logout?token=' . $user->forum_token);
     Cookie::queue('flarum_remember', 'removed', 60 * 24 * 30, '/', '.sdlabs.cc', true, false);
     Cookie::queue('flarum_session', 'removed', 60 * 24 * 30, '/', '.sdlabs.cc', true, false);
     }
