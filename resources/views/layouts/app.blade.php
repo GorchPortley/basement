@@ -1,3 +1,3 @@
 <x-layout :title="$title ?? null">
-        {{ $slot }}
+{{ $slot }}
 </x-layout>

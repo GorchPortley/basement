@@ -24,7 +24,7 @@ class ForumAuthenticationController extends Controller
             $user->forum_id = $response->json()['userId'];
             $user->save();
             $token = $response->json()['token'];
-            Cookie::queue('flarum_remember', $token, 60 * 24 * 30, '/', '.sdlabs.cc', true, false); //This cookie is unencrypted, see bootstrap/app.php
+            Cookie::queue('flarum_remember', $token, 60 * 24 * 30, '/', config('services.domain.domain'), false, false, false, 'Lax'); //This cookie is unencrypted, see bootstrap/app.php
         }
         }
 
@@ -48,8 +48,8 @@ class ForumAuthenticationController extends Controller
 
     public static function logoutUser($event) {
         $user = $event->user;
-    $response = Http::get('http://forumsb.sdlabs.cc/logout?token=' . $user->forum_token);
-    Cookie::queue('flarum_remember', 'removed', 60 * 24 * 30, '/', '.sdlabs.cc', true, false);
-    Cookie::queue('flarum_session', 'removed', 60 * 24 * 30, '/', '.sdlabs.cc', true, false);
+    $response = Http::get(config('services.forum.url') . '/logout?token=' . $user->forum_token);
+    Cookie::queue('flarum_remember', 'removed', 60 * 24 * 30, '/', config('services.domain.domain'), false, false, false, 'Lax');
+     Cookie::queue('flarum_session', 'removed', 60 * 24 * 30, '/', config('services.domain.domain'), false, false, false, 'Lax');
     }
     }

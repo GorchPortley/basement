@@ -1,3 +1,3 @@
 <x-layouts::app :title="__('Welcome')" >
-check
+welcome
 </x-layouts::app>

@@ -40,4 +40,8 @@ return [
         'api_key' => env('FORUM_API_KEY'),
     ],
 
+    'domain' => [
+        'domain' => env('SESSION_DOMAIN'),
+    ]
+
 ];
