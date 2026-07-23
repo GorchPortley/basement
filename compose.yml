@@ -1,0 +1,87 @@
+# Portable production-ish stack. Runs anywhere with just Docker:
+#
+#   cp .env.example .env      # required once (holds APP_KEY etc.)
+#   docker compose up -d --build
+#
+# The app self-bootstraps on boot (APP_KEY, sqlite db, storage:link, migrations).
+# Object storage (Garage) and the forum (Flarum) are optional — enable with
+# `--profile storage` / `--profile forum`. Nothing here is machine-specific;
+# tune ports/PHP version via the shell or a .env alongside this file.
+
+name: sdlabs
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.4}
+    image: sdlabs:latest
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      # App bootstrap runs from the image's early entrypoint script.
+      PHP_OPCACHE_ENABLE: "1"
+      PHP_MEMORY_LIMIT: "${PHP_MEMORY_LIMIT:-512M}"
+    volumes:
+      # .env holds secrets/config and is bind-mounted so APP_KEY persists.
+      - ./.env:/var/www/html/.env
+      # Persist uploads and the sqlite database across container rebuilds.
+      - app-storage:/var/www/html/storage
+      - app-database:/var/www/html/database
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1:8080/up') !== false ? 0 : 1);"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ---- Optional: Garage (S3-compatible object storage) — `--profile storage` ----
+  garage:
+    profiles: ["storage"]
+    image: dxflrs/garage:v2.3.0
+    restart: unless-stopped
+    volumes:
+      - ./docker/garage.toml:/etc/garage.toml:ro   # cp docker/garage.toml.example first
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
+    ports:
+      - "${GARAGE_S3_PORT:-3900}:3900"
+      - "${GARAGE_ADMIN_PORT:-3903}:3903"
+
+  # ---- Optional: Flarum forum + its database — `--profile forum` ----
+  forum:
+    profiles: ["forum"]
+    image: mondedie/flarum:stable
+    restart: unless-stopped
+    depends_on:
+      - forum-db
+    env_file:
+      - ./docker/forum.env                          # cp docker/forum.env.example first
+    volumes:
+      - forum-assets:/flarum/app/public/assets
+      - forum-extensions:/flarum/app/extensions
+    ports:
+      - "${FORUM_PORT:-8180}:8888"
+
+  forum-db:
+    profiles: ["forum"]
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${FORUM_DB_NAME:-flarum}
+      MARIADB_USER: ${FORUM_DB_USER:-flarum}
+      MARIADB_PASSWORD: ${FORUM_DB_PASSWORD:-flarum}
+      MARIADB_ROOT_PASSWORD: ${FORUM_DB_ROOT_PASSWORD:-changeme}
+    volumes:
+      - forum-db-data:/var/lib/mysql
+
+volumes:
+  app-storage:
+  app-database:
+  garage-meta:
+  garage-data:
+  forum-assets:
+  forum-extensions:
+  forum-db-data:

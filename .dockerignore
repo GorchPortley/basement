@@ -1,0 +1,38 @@
+# Rebuilt inside the image
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+
+# Secrets & local state (never bake these in). The storage/ + database/
+# directory skeletons ARE kept (they carry the .gitignore files Laravel needs);
+# only the transient data is dropped.
+.env
+.env.*
+!.env.example
+/database/*.sqlite
+/storage/logs/*.log
+/storage/pail
+auth.json
+
+# VCS / tooling / editors
+.git
+.gitignore
+.github
+.phpunit.cache
+.phpunit.result.cache
+.phpactor.json
+.idea
+.vscode
+.zed
+.fleet
+.nova
+npm-debug.log
+yarn-error.log
+
+# Compose files aren't needed inside the image
+compose*.yml
+compose*.yml.example
+Dockerfile
+.dockerignore

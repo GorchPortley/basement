@@ -1,0 +1,43 @@
+# Standalone local-development stack (live code + Vite HMR):
+#
+#   cp .env.example .env
+#   docker compose -f compose.dev.yml up --build
+#
+# The source is bind-mounted, so edits are live. The app container installs
+# composer deps and generates APP_KEY on first boot; the vite container serves
+# hot-reloaded assets. Set VITE_HMR_HOST to your LAN IP/hostname for remote dev.
+
+name: sdlabs-dev
+
+services:
+  app:
+    build:
+      context: .
+      target: app
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.4}
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      # Match the container's web user to your host user to avoid permission
+      # churn on the bind mount (ignored on Docker Desktop / Windows).
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      PHP_OPCACHE_ENABLE: "0"
+    volumes:
+      - ./:/var/www/html
+
+  vite:
+    image: node:22-bookworm-slim
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    environment:
+      VITE_HMR_HOST: ${VITE_HMR_HOST:-localhost}
+      VITE_PORT: ${VITE_PORT:-5173}
+      VITE_USE_POLLING: ${VITE_USE_POLLING:-false}
+    volumes:
+      - ./:/app
+    ports:
+      - "${VITE_PORT:-5173}:5173"

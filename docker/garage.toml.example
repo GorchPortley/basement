@@ -1,0 +1,40 @@
+# Garage (S3) single-node config template — copy to garage.toml and fill secrets:
+#
+#   cp docker/garage.toml.example docker/garage.toml
+#   # generate secrets:
+#   openssl rand -hex 32     # -> rpc_secret
+#   openssl rand -base64 32  # -> admin_token / metrics_token
+#
+# Then bring it up and initialise the cluster layout once (see DOCKER.md):
+#   docker compose --profile storage up -d garage
+#   docker compose exec garage /garage status
+#   docker compose exec garage /garage layout assign -z dc1 -c 1G <NODE_ID>
+#   docker compose exec garage /garage layout apply --version 1
+#
+# Hostnames use the compose service name ("garage"), so this is not tied to any
+# machine.
+
+metadata_dir = "/var/lib/garage/meta"
+data_dir     = "/var/lib/garage/data"
+db_engine    = "lmdb"
+
+replication_factor = 1
+
+rpc_bind_addr   = "[::]:3901"
+rpc_public_addr = "garage:3901"
+rpc_secret      = "REPLACE_WITH_OUTPUT_OF_openssl_rand_hex_32"
+
+[s3_api]
+s3_region     = "garage"
+api_bind_addr = "[::]:3900"
+root_domain   = ".s3.garage.local"
+
+[s3_web]
+bind_addr   = "[::]:3902"
+root_domain = ".web.garage.local"
+index       = "index.html"
+
+[admin]
+api_bind_addr = "[::]:3903"
+admin_token   = "REPLACE_WITH_OUTPUT_OF_openssl_rand_base64_32"
+metrics_token = "REPLACE_WITH_OUTPUT_OF_openssl_rand_base64_32"
