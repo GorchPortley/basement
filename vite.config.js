@@ -17,7 +17,7 @@ export default defineConfig({
         host: '0.0.0.0',
         hmr: { host: 'localhost' },
         watch: {
-            ignored: ['**/storage/framework/views/**','**/storage/forum/**','**storage/garage/**','**/storage/mysql/**','**/storage/mysql-init/**']
+            ignored: ['**/storage/framework/views/**','**/storage/forum/**','**/storage/garage/**','**/storage/mysql/**','**/storage/mysql-init/**']
         },
     },
 });

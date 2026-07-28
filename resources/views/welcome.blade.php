@@ -1,3 +1,5 @@
 <x-layouts::app :title="__('Welcome')" >
-welcome
+
+<livewire:forms.ui-test />
+
 </x-layouts::app>

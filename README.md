@@ -13,6 +13,10 @@ composer update
 composer install
 php artisan migrate
 php artisan db:seed
+php artisan filament:install
+php artisan filament:user
 
 Node is for development
 Garage to manage S3 for object storage
+Mysql for unified db
+Filament for admin panel
