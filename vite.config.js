@@ -14,10 +14,10 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
-        host: '192.168.1.5',
-        allowedHosts: true,
+        host: '0.0.0.0',
+        hmr: { host: 'localhost' },
         watch: {
-            ignored: ['**/storage/framework/views/**'],
+            ignored: ['**/storage/framework/views/**','**/storage/forum/**','**storage/garage/**','**/storage/mysql/**','**/storage/mysql-init/**']
         },
     },
 });

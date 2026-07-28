@@ -1,0 +1,8 @@
+*
+!.gitignore
+!/forum.env.example
+
+# whitelist just the one file inside storage
+!/storage/
+/storage/*
+!/storage/config.php.example

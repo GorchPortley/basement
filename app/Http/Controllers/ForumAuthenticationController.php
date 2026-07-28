@@ -15,7 +15,7 @@ class ForumAuthenticationController extends Controller
         $user = $event->user;
         $response = Http::withHeaders([
             'Authorization' => 'Token ' . config('services.forum.api_key') . '; userId=1'
-            ])->post(config('services.forum.url') . '/api/token', [
+            ])->post(config('services.forum.backendurl') ?? config('services.forum.backendurl') . '/api/token' ?? config('services.forum.url') . '/api/token', [
                         'identification' => $user->name,
                         'password' => $user->forum_password,
                         'remember' => 1]);
@@ -35,7 +35,7 @@ class ForumAuthenticationController extends Controller
             $user->save();
             $token = config('services.forum.api_key');
             $registration = Http::withHeaders(['Authorization' => 'Token ' . config('services.forum.api_key') . '; userId=1'])->
-                    post(config('services.forum.url') . '/api/users', [
+                    post(config('services.forum.backendurl') ?? config('services.forum.backendurl') . '/api/users', [
                         'data' => [
                             'attributes' => [
                                 'username' => $user->name,
@@ -48,8 +48,8 @@ class ForumAuthenticationController extends Controller
 
     public static function logoutUser($event) {
         $user = $event->user;
-    $response = Http::get(config('services.forum.url') . '/logout?token=' . $user->forum_token);
-    Cookie::queue('flarum_remember', 'removed', 60 * 24 * 30, '/', config('services.domain.domain'), false, false, false, 'Lax');
-     Cookie::queue('flarum_session', 'removed', 60 * 24 * 30, '/', config('services.domain.domain'), false, false, false, 'Lax');
+        $response = Http::get(config('services.forum.backendurl') ?? config('services.forum.backendurl') . '/logout?token=' . $user->forum_token);
+        Cookie::queue('flarum_remember', 'removed', 60 * 24 * 30, '/', config('services.domain.domain'), false, false, false, 'Lax');
+        Cookie::queue('flarum_session', 'removed', 60 * 24 * 30, '/', config('services.domain.domain'), false, false, false, 'Lax');
     }
     }
