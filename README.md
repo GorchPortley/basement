@@ -15,8 +15,9 @@ php artisan migrate
 php artisan db:seed
 php artisan filament:install
 php artisan filament:user
+php artisan filament:assets
 
 Node is for development
-Garage to manage S3 for object storage
-Mysql for unified db
-Filament for admin panel
+Garage to manage S3 for object storage(must create key, create uploads,assets,temp buckets, authorize key to all 3 buckets)
+Mysql for unified db (site and forum)
+Filament for admin panel and forms, styles mapped to DaisyUI Variables in app.css for unified styling
