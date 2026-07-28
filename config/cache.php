@@ -38,6 +38,11 @@ return [
             'driver' => 'array',
             'serialize' => false,
         ],
+        'forum' => [
+            'url' => env('FORUM_URL'),
+            'backendurl' => env('FORUM_BACKEND_URL'),
+            'api_key' => env('FORUM_API_KEY'),
+        ],
 
         'database' => [
             'driver' => 'database',

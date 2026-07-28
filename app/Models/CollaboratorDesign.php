@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\MorphPivot;
+use Illuminate\Database\Eloquent\Relations\MorphPivot;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 #[Fillable(['design_id', 'collaborator_id', 'collaborator_type', 'payload'])]
+
 class CollaboratorDesign extends MorphPivot
 {
     use InteractsWithMedia;
@@ -24,5 +25,5 @@ class CollaboratorDesign extends MorphPivot
     public function collaborator()
     {
         return $this->morphTo();
-    }    
+    }
 }

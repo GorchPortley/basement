@@ -38,6 +38,7 @@ return [
     'forum' => [
         'url' => env('FORUM_URL'),
         'api_key' => env('FORUM_API_KEY'),
+        'backendurl' => env('FORUM_BACKEND_URL'),
     ],
 
     'domain' => [
