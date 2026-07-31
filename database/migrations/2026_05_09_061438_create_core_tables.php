@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('components', function (Blueprint $table) {
+        Schema::create('drivers', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->morphs('owner');
@@ -23,11 +23,11 @@ return new class extends Migration
             $table->morphs('owner');
             $table->json('payload')->nullable();
         });
-        Schema::create('component_design', function (Blueprint $table) {
+        Schema::create('driver_design', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->foreignId('design_id')->constrained();
-            $table->foreignId('component_id')->constrained();
+            $table->foreignId('driver_id')->constrained();
             $table->json('payload')->nullable();
         });
         Schema::create('collaborator_design', function (Blueprint $table) {
