@@ -1,10 +1,17 @@
 services:
   dev:
     container_name: dev
-    image: serversideup/php:8.5-fpm-apache
+    build:
+      context: .
+      target: development
+      args:
+        USER_ID: 1000
+        GROUP_ID: 1000
     ports:
-      - "8080:8080" #left side is public facing port
+      - "8080:8080"
     environment:
+      USER_ID: 1000
+      GROUP_ID: 1000
       PHP_OPCACHE_ENABLE: "1"
       PHP_MEMORY_LIMIT: "512M"
       AUTORUN_ENABLED: "true"
@@ -15,7 +22,7 @@ services:
         condition: service_healthy
 
   db:
-    image: mysql:8.4            # pinned
+    image: mysql:8.4
     container_name: db
     restart: always
     ports:
@@ -27,14 +34,14 @@ services:
       MYSQL_ROOT_PASSWORD: password
     volumes:
       - ./storage/mysql/:/var/lib/mysql
-      - ./storage/mysql-init/:/docker-entrypoint-initdb.d/   # creates the flarum DB too
+      - ./storage/mysql-init/:/docker-entrypoint-initdb.d/   # creates the flarum DB
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-ppassword"]
       interval: 5s
       timeout: 5s
       retries: 12
 
-  phpmyadmin: #not required but nice to have
+  phpmyadmin:
     image: phpmyadmin
     container_name: db_admin
     restart: always
@@ -51,13 +58,13 @@ services:
     image: mondedie/flarum:stable
     container_name: flarum_dev
     env_file:
-      - ./storage/forum/forum.env
+      - ./forum.env
     volumes:
       - ./storage/forum/assets:/flarum/app/public/assets
       - ./storage/forum/extensions:/flarum/app/extensions
       - ./storage/forum/storage/logs:/flarum/app/storage/logs
       - ./storage/forum/nginx:/etc/nginx/flarum
-      - ./storage/forum/storage/config.php:/flarum/app/config.php
+      - ./storage/forum/storage/config.php:/flarum/app/config.php   # MUST be touched first (see readme)
     ports:
       - "8180:8888"
     depends_on:
@@ -66,23 +73,27 @@ services:
 
   node_dev:
     image: node:20-alpine
+    user: "1000:1000"
     container_name: node_dev
     working_dir: /app
+    environment:
+      HOME: /home/node
     volumes:
       - ./:/app
     command: sh -c "npm install && npm run dev"
     ports:
-      - "5173:5173"
+      - "5173:5173"           # Vite dev server
     restart: unless-stopped
     depends_on:
       - dev
 
   garage_dev:
     image: dxflrs/garage:v2.3.0
-    container_name: garage_dev
-    command: /garage server --single-node
+    container_name: garage_dev --single-node
+    # --single-node auto-applies the cluster layout so you don't run `garage layout assign` by hand, remove after first run.
+    command: /garage server
     volumes:
-      - ./storage/garage/garage.toml:/etc/garage.toml
+      - ./storage/garage/garage.toml:/etc/garage.toml   # MUST exist as a file before start (see readme)
       - ./storage/garage/meta:/var/lib/garage/meta
       - ./storage/garage/data:/var/lib/garage/data
     restart: unless-stopped
@@ -91,6 +102,7 @@ services:
       - "3901:3901"
       - "3902:3902"
       - "3903:3903"
+
 
   s3_webui_dev:
     image: khairul169/garage-webui:latest
