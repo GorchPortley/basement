@@ -1,4 +1,3 @@
 <x-layouts::dash :title="__('Dashboard')">
     <livewire:navigation.dash-nav />
-    <livewire:forms.driverform />
 </x-layouts::dash>
