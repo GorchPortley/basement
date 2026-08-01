@@ -2,15 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-#[Fillable(['owner_type', 'owner_id', 'payload'])]
-class Design extends Model
+
+class Design extends Model implements HasMedia
 {
     use InteractsWithMedia;
-    public function components()
+
+    protected $fillable = ['payload'];
+    protected $casts = ['payload' => 'array',];
+
+    public function drivers()
     {
         return $this->belongsToMany(Driver::class)
             ->using(DriverDesign::class)
@@ -18,13 +24,27 @@ class Design extends Model
             ->withTimestamps();
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (Design $design) {
+            if (! $driver->owner_id && auth()->check()) {
+                $design->owner()->associate(auth()->user());
+            }
+        });
+    }
+
     public function collaborators()
     {
         return $this->hasMany(DesignCollaborator::class);//All collaborators, type filtering can be done in queries?
     }
 
-    public function designer()
+    public function designer(): MorphTo
     {
-        return $this->belongsTo(User::class);
+        return $this->morphto();
+    }
+
+    public function registerMediaCollections(): void
+    {
+//
     }
 }

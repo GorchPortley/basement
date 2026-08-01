@@ -2,20 +2,29 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-
-
-
 class Driver extends Model implements HasMedia
 {
-   use InteractsWithMedia;
+    use InteractsWithMedia;
+
     protected $fillable = ['payload'];
-    protected $casts = ['payload' => 'array',];
+
+    protected $casts = ['payload' => 'array'];
+
+    public static function getBrands(): array
+    {
+        return DB::table('drivers')->pluck('payload')
+            ->map(fn ($p) => data_get(json_decode($p, true), 'meta.brand'))
+            ->filter()
+            ->values()
+            ->all();
+    }
 
     public function designs(): BelongsToMany
     {
@@ -42,7 +51,8 @@ class Driver extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('datasheet')->singleFile();
-        $this->addMediaCollection('images');
+        $this->addMediaCollection('prod_img');
+        $this->addMediaCollection('description_img');
         $this->addMediaCollection('frd');
         $this->addMediaCollection('zma');
     }
