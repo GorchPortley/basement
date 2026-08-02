@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -13,7 +14,7 @@ class Driver extends Model implements HasMedia
 {
     use InteractsWithMedia;
 
-    protected $fillable = ['payload'];
+    protected $fillable = ['payload', 'active'];
 
     protected $casts = ['payload' => 'array'];
 
@@ -37,8 +38,8 @@ class Driver extends Model implements HasMedia
     protected static function booted(): void
     {
         static::creating(function (Driver $driver) {
-            if (! $driver->owner_id && auth()->check()) {
-                $driver->owner()->associate(auth()->user());
+            if (! $driver->owner_id && Auth::check()) {
+                $driver->owner()->associate(Auth::id());
             }
         });
     }
