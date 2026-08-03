@@ -8,6 +8,7 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -91,7 +92,6 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                         SpatieMediaLibraryFileUpload::make('prod_image')
                             ->multiple()
                             ->disk('uploads')
-                            ->directory('driver_files')
                             ->visibility('public')
                             ->collection('prod_img')
                             ->conversionsDisk('temp')
@@ -101,25 +101,64 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                     ->description('Describe the component')
                     ->schema([
                         RichEditor::make('payload.descriptions.description'),
-                        SpatieMediaLibraryFileUpload::make('description_img')
-                            ->multiple()
-                            ->disk('uploads')
-                            ->directory('driver_files')
-                            ->visibility('public')
-                            ->collection('description_img')
-                            ->conversionsDisk('uploads')
-                            ->responsiveImages(),
                     ]),
                 Section::make('Specifications')
                     ->description('Specifications of the Driver')
                     ->schema([
+                        SpatieMediaLibraryFileUpload::make('datasheet')
+                            ->label('Datasheets')
+                            ->multiple()
+                            ->disk('uploads')
+                            ->visibility('public')
+                            ->collection('datasheet'),
+                        SpatieMediaLibraryFileUpload::make('zma')
+                            ->label('Impedance Files')
+                            ->multiple()
+                            ->disk('uploads')
+                            ->visibility('public')
+                            ->collection('zma'),
+                        SpatieMediaLibraryFileUpload::make('frd')
+                            ->label('Frequency Response Files')
+                            ->multiple()
+                            ->disk('uploads')
+                            ->visibility('public')
+                            ->collection('frd'),
+                        SpatieMediaLibraryFileUpload::make('other')
+                            ->label('Other Driver Files')
+                            ->multiple()
+                            ->disk('uploads')
+                            ->visibility('public')
+                            ->collection('other'),
                         TextInput::make('payload.specs.size'),
                         TextInput::make('payload.specs.type'),
-                        TextInput::make('payload.specs.tsparam'),
+                        KeyValue::make('payload.specs.tsparam')
+                            ->addable(false)
+                            ->deletable(false)
+                            ->editableKeys(false)
+                            ->keyLabel('Parameters')
+                            ->default([
+                                'SPL' => '',
+                                'Sd' => '',
+                                'Mms' => '',
+                                'Cms' => '',
+                                'Rms' => '',
+                                'Le' => '',
+                                'Re' => '',
+                                'Bl' => '',
+                                'fs' => '',
+                                'Qes' => '',
+                                'Qms' => '',
+                                'Qts' => '',
+                                'Vas' => '',
+                                'Xmax' => '',
+                                'Xmech' => '',
+                                'Pe' => '',
+                                'Vd' => '',
+                                'n0%' => '',
+                            ]),
                     ]),
             ])
-            ->statePath('driver')
-            ->model(Driver::class);
+            ->statePath('driver');
     }
 
     public function save(): void

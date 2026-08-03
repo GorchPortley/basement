@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\MediaLibrary\DriverPathGenerator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\Support\PathGenerator\PathGeneratorFactory;
 
 class Driver extends Model implements HasMedia
 {
@@ -35,11 +37,16 @@ class Driver extends Model implements HasMedia
             ->withTimestamps();
     }
 
+    protected static function booting(): void
+    {
+        PathGeneratorFactory::setCustomPathGenerators(static::class, DriverPathGenerator::class);
+    }
+
     protected static function booted(): void
     {
         static::creating(function (Driver $driver) {
             if (! $driver->owner_id && Auth::check()) {
-                $driver->owner()->associate(Auth::id());
+                $driver->owner()->associate(Auth::user());
             }
         });
     }
@@ -51,10 +58,11 @@ class Driver extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('datasheet')->singleFile();
+        $this->addMediaCollection('datasheet');
         $this->addMediaCollection('prod_img');
         $this->addMediaCollection('description_img');
         $this->addMediaCollection('frd');
         $this->addMediaCollection('zma');
+        $this->addMediaCollection('other');
     }
 }
