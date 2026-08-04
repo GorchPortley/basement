@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Support\MediaLibrary\DriverPathGenerator;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -14,9 +15,10 @@ use Spatie\MediaLibrary\Support\PathGenerator\PathGeneratorFactory;
 
 class Driver extends Model implements HasMedia
 {
+    use HasFactory;
     use InteractsWithMedia;
 
-    protected $fillable = ['payload', 'active'];
+    protected $fillable = ['payload', 'active', 'owner_id', 'owner_type'];
 
     protected $casts = ['payload' => 'array'];
 

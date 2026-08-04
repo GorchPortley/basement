@@ -1,13 +1,13 @@
-<div class="navbar h-18 bg-primary-content">
+<div class="navbar h-18 bg-primary text-primary-content">
     <div class="navbar-start">
     <a href=/ >SDLabs_Dev</a>
     </div>
 
     <div class="h-full navbar-center">
-        <x-mary-button link="{{ route('designs') }}" label="Designs" class="btn-ghost rounded-none bg-primary-content h-full" />
-        <x-mary-button link="{{route('drivers')}}" label="Drivers" class="btn-ghost rounded-none bg-primary-content h-full" />
-        <x-mary-button link="{{ route('blog') }}" label="Blog" class="btn-ghost rounded-none bg-primary-content h-full" />
-        <x-mary-button link="{{config('services.forum.url')}}" label="Forum" class="btn-ghost rounded-none bg-primary-content h-full" />
+        <x-mary-button link="{{ route('designs') }}" label="Designs" class="btn-ghost rounded-none bg-primary h-full" />
+        <x-mary-button link="{{route('drivers')}}" label="Drivers" class="btn-ghost rounded-none bg-primary h-full" />
+        <x-mary-button link="{{ route('blog') }}" label="Blog" class="btn-ghost rounded-none bg-primary h-full" />
+        <x-mary-button link="{{config('services.forum.url')}}" label="Forum" class="btn-ghost rounded-none bg-primary h-full" />
     </div>
 
     <div class="navbar-end">

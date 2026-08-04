@@ -42,7 +42,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(Driver::query())
+            ->query(Driver::query()->where('owner_id', auth()->id()))
             ->columns([
                 TextColumn::make('payload.meta.brand')
                     ->label('Brand'),
@@ -86,9 +86,15 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                         TextInput::make('payload.meta.brand')
                             ->datalist(fn () => Driver::getBrands()),
                         TextInput::make('payload.meta.model'),
+                        TextInput::make('payload.meta.impedance')
+                            ->numeric(),
+                        TextInput::make('payload.meta.size')
+                            ->numeric(),
                         TextInput::make('payload.meta.tag'),
-                        TextInput::make('payload.meta.link'),
-                        TextInput::make('payload.meta.price')->numeric(),
+                        TextInput::make('payload.meta.link')
+                            ->url(),
+                        TextInput::make('payload.meta.price')
+                            ->numeric(),
                         SpatieMediaLibraryFileUpload::make('prod_image')
                             ->multiple()
                             ->disk('uploads')
@@ -129,8 +135,9 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                             ->disk('uploads')
                             ->visibility('public')
                             ->collection('other'),
-                        TextInput::make('payload.specs.size'),
-                        TextInput::make('payload.specs.type'),
+                        TextInput::make('payload.specs.outside_dimeter'),
+                        TextInput::make('payload.specs.mount_diameter'),
+                        TextInput::make('payload.specs.depth'),
                         KeyValue::make('payload.specs.tsparam')
                             ->addable(false)
                             ->deletable(false)
@@ -178,7 +185,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
 ?>
 
 <div>
-    <div class="flex bg-neutral-content justify-center">
+    <div class="flex h-screen bg-neutral-content justify-center">
     <x-card title="Manage Your Drivers" class="rounded-none w-300">
         <div>
             {{ $this->table }}
