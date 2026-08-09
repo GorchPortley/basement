@@ -155,13 +155,14 @@ return [
         // Model::class => PathGenerator::class
         // or
         // 'model_morph_alias' => PathGenerator::class
+        App\Models\Driver::class => App\Support\MediaLibrary\DriverPathGenerator::class,
     ],
 
     /*
      * When urls to files get generated, this class will be called. Use the default
      * if your files are stored locally above the site root or on s3.
      */
-    'url_generator' => DefaultUrlGenerator::class,
+    'url_generator' => App\Support\MediaLibrary\RouteUrlGenerator::class,
 
     /*
      * Moves media on updating to keep path consistent. Enable it only with a custom

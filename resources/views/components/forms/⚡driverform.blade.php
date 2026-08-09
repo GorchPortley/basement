@@ -1,13 +1,11 @@
 <?php
 
 use App\Models\Driver;
-use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -19,8 +17,10 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Concerns\RestrictsFileUploadsToSchemaComponents;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
@@ -32,38 +32,53 @@ new class extends Component implements HasActions, HasSchemas, HasTable
     use InteractsWithTable;
     use RestrictsFileUploadsToSchemaComponents;
 
-    public ?array $driver = [];
-
-    public function mount(): void
-    {
-        $this->form->fill();
-    }
-
+    /**
+     * The list of drivers this user owns. Creating, editing and deleting all
+     * happen through the table's actions, which reuse driverForm() below.
+     */
     public function table(Table $table): Table
     {
         return $table
             ->query(Driver::query()->where('owner_id', auth()->id()))
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('payload.meta.brand')
                     ->label('Brand'),
                 TextColumn::make('payload.meta.model')
                     ->label('Model'),
+                TextColumn::make('payload.meta.type')
+                    ->label('Type')
+                    ->formatStateUsing(fn ($state) => Driver::TYPES[$state] ?? 'Unspecified')
+                    ->badge(),
+                IconColumn::make('active')
+                    ->label('Published')
+                    ->boolean(),
             ])
+            // A table with no filters at all renders an empty filter form,
+            // which Filament's partial renderer chokes on, so keep one here.
             ->filters([
-                // ...
+                TernaryFilter::make('active')
+                    ->label('Published'),
             ])
             ->recordActions([
                 EditAction::make('editDriver')
-                    ->schema(fn (Schema $schema): Schema => $this->form($schema)),
+                    ->schema(fn (Schema $schema): Schema => $this->driverForm($schema)),
                 DeleteAction::make('deleteDriver'),
             ])
             ->toolbarActions([
                 CreateAction::make('newDriver')
-                    ->schema(fn (Schema $schema): Schema => $this->form($schema)),
-            ]);
+                    ->label('Add a driver')
+                    ->schema(fn (Schema $schema): Schema => $this->driverForm($schema)),
+            ])
+            ->emptyStateHeading('No drivers yet')
+            ->emptyStateDescription('Add a driver to start building your library.');
     }
 
-    public function form(Schema $schema): Schema
+    /**
+     * The create/edit form. It is handed the schema owned by whichever action
+     * opened it, so it must not set its own state path.
+     */
+    public function driverForm(Schema $schema): Schema
     {
         return $schema
             ->components([
@@ -71,32 +86,44 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                     ->description('Basic Driver Information')
                     ->schema([
                         Toggle::make('active')
-                            ->default(0),
+                            ->label('Published')
+                            ->helperText('Published drivers show up in the public browse page.')
+                            ->default(false),
                         Select::make('payload.meta.type')
-                            ->options([
-                                'Subwoofer',
-                                'Woofer',
-                                'Midrange',
-                                'Tweeter',
-                                'Passive Radiator',
-                                'Compression Driver',
-                                'Horn',
-                                'Waveguide',
-                            ]),
+                            ->label('Type')
+                            ->options(Driver::TYPES)
+                            ->required(),
                         TextInput::make('payload.meta.brand')
+                            ->label('Brand')
+                            ->required()
                             ->datalist(fn () => Driver::getBrands()),
-                        TextInput::make('payload.meta.model'),
+                        TextInput::make('payload.meta.model')
+                            ->label('Model')
+                            ->required(),
                         TextInput::make('payload.meta.impedance')
-                            ->numeric(),
+                            ->label('Nominal impedance')
+                            ->numeric()
+                            ->suffix('Ω'),
                         TextInput::make('payload.meta.size')
-                            ->numeric(),
-                        TextInput::make('payload.meta.tag'),
+                            ->label('Size')
+                            ->numeric()
+                            ->suffix('in'),
+                        TextInput::make('payload.meta.tag')
+                            ->label('Tag line')
+                            ->maxLength(120),
                         TextInput::make('payload.meta.link')
-                            ->url(),
+                            ->label('Product page')
+                            ->url()
+                            ->placeholder('https://'),
                         TextInput::make('payload.meta.price')
-                            ->numeric(),
+                            ->label('Price')
+                            ->numeric()
+                            ->prefix('$'),
                         SpatieMediaLibraryFileUpload::make('prod_image')
+                            ->label('Product images')
+                            ->image()
                             ->multiple()
+                            ->reorderable()
                             ->disk('uploads')
                             ->visibility('public')
                             ->collection('prod_img')
@@ -104,9 +131,10 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                             ->responsiveImages(),
                     ]),
                 Section::make('Descriptions')
-                    ->description('Describe the component')
+                    ->description('Describe the driver')
                     ->schema([
-                        RichEditor::make('payload.descriptions.description'),
+                        RichEditor::make('payload.descriptions.description')
+                            ->label('Description'),
                     ]),
                 Section::make('Specifications')
                     ->description('Specifications of the Driver')
@@ -135,10 +163,14 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                             ->disk('uploads')
                             ->visibility('public')
                             ->collection('other'),
-                        TextInput::make('payload.specs.outside_dimeter'),
-                        TextInput::make('payload.specs.mount_diameter'),
-                        TextInput::make('payload.specs.depth'),
+                        TextInput::make('payload.specs.outside_diameter')
+                            ->label('Outside diameter'),
+                        TextInput::make('payload.specs.mount_diameter')
+                            ->label('Mounting diameter'),
+                        TextInput::make('payload.specs.depth')
+                            ->label('Depth'),
                         KeyValue::make('payload.specs.tsparam')
+                            ->label('Thiele/Small parameters')
                             ->addable(false)
                             ->deletable(false)
                             ->editableKeys(false)
@@ -164,33 +196,13 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                                 'n0%' => '',
                             ]),
                     ]),
-            ])
-            ->statePath('driver');
-    }
-
-    public function save(): void
-    {
-        $driver = Driver::create($this->form->getState());
-        $this->form->record($driver)->saveRelationships();
-        $this->resetform();
-        $this->form->fill();
-    }
-
-    public function resetForm(): void
-    {
-        $this->driver = [];
-        $this->form->fill();
+            ]);
     }
 };
 ?>
 
-<div>
-    <div class="flex h-screen bg-neutral-content justify-center">
-    <x-card title="Manage Your Drivers" class="rounded-none w-300">
-        <div>
-            {{ $this->table }}
-            {{-- <x-button label="Save design" class="btn-primary" wire:click="save" spinner="save" /> --}}
-        </div>
+<div class="p-4">
+    <x-card title="Manage Your Drivers" subtitle="Every driver you have added to the library." separator>
+        {{ $this->table }}
     </x-card>
-</div>
 </div>

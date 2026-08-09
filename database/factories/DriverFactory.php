@@ -20,16 +20,8 @@ class DriverFactory extends Factory
      */
     public function definition(): array
     {
-        $type = fake()->randomElement([
-            'Subwoofer',
-            'Woofer',
-            'Midrange',
-            'Tweeter',
-            'Passive Radiator',
-            'Compression Driver',
-            'Horn',
-            'Waveguide',
-        ]);
+        // The form stores the key, e.g. "passive_radiator", not the label.
+        $type = fake()->randomElement(array_keys(Driver::TYPES));
 
         $brand = fake()->randomElement([
             'Dayton Audio',
@@ -70,10 +62,10 @@ class DriverFactory extends Factory
                     'price' => fake()->randomFloat(2, 15, 899),
                 ],
                 'descriptions' => [
-                    'description' => $this->fakeRichTextDescription($brand, $type),
+                    'description' => $this->fakeRichTextDescription($brand, Driver::TYPES[$type]),
                 ],
                 'specs' => [
-                    'outside_dimeter' => round($nominalSize + fake()->randomFloat(2, 0.3, 1.5), 2).'"',
+                    'outside_diameter' => round($nominalSize + fake()->randomFloat(2, 0.3, 1.5), 2).'"',
                     'mount_diameter' => round($nominalSize - fake()->randomFloat(2, 0.1, 0.4), 2).'"',
                     'depth' => round($nominalSize * fake()->randomFloat(2, 0.35, 0.6), 2).'"',
                     'tsparam' => [

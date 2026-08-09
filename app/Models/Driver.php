@@ -2,31 +2,55 @@
 
 namespace App\Models;
 
-use App\Support\MediaLibrary\DriverPathGenerator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\Support\PathGenerator\PathGeneratorFactory;
 
 class Driver extends Model implements HasMedia
 {
     use HasFactory;
     use InteractsWithMedia;
 
+    /**
+     * The kinds of driver we accept.
+     * Keys are stored in payload.meta.type, values are what the user sees.
+     */
+    public const TYPES = [
+        'subwoofer' => 'Subwoofer',
+        'woofer' => 'Woofer',
+        'midrange' => 'Midrange',
+        'tweeter' => 'Tweeter',
+        'passive_radiator' => 'Passive Radiator',
+        'compression_driver' => 'Compression Driver',
+        'horn' => 'Horn',
+        'waveguide' => 'Waveguide',
+    ];
+
     protected $fillable = ['payload', 'active', 'owner_id', 'owner_type'];
 
-    protected $casts = ['payload' => 'array'];
+    protected $casts = [
+        'payload' => 'array',
+        'active' => 'boolean',
+    ];
 
+    /**
+     * Every brand already in the library, so the driver form can suggest them
+     * instead of letting everyone spell "Dayton Audio" their own way.
+     *
+     * @return array<int, string>
+     */
     public static function getBrands(): array
     {
-        return DB::table('drivers')->pluck('payload')
-            ->map(fn ($p) => data_get(json_decode($p, true), 'meta.brand'))
+        return static::query()
+            ->pluck('payload')
+            ->map(fn ($payload) => data_get($payload, 'meta.brand'))
             ->filter()
+            ->unique()
+            ->sort()
             ->values()
             ->all();
     }
@@ -37,11 +61,6 @@ class Driver extends Model implements HasMedia
             ->using(DriverDesign::class)
             ->withPivot('payload')
             ->withTimestamps();
-    }
-
-    protected static function booting(): void
-    {
-        PathGeneratorFactory::setCustomPathGenerators(static::class, DriverPathGenerator::class);
     }
 
     protected static function booted(): void
@@ -55,7 +74,28 @@ class Driver extends Model implements HasMedia
 
     public function owner(): MorphTo
     {
-        return $this->morphto();
+        return $this->morphTo();
+    }
+
+    /**
+     * "Dayton Audio RS180-8" — used anywhere a driver needs a one line name.
+     */
+    public function displayName(): string
+    {
+        $brand = data_get($this->payload, 'meta.brand');
+        $model = data_get($this->payload, 'meta.model');
+
+        return trim($brand.' '.$model) ?: 'Untitled driver';
+    }
+
+    /**
+     * Human readable type, e.g. "Passive Radiator" instead of "passive_radiator".
+     */
+    public function typeLabel(): string
+    {
+        $type = data_get($this->payload, 'meta.type');
+
+        return self::TYPES[$type] ?? 'Unspecified';
     }
 
     public function registerMediaCollections(): void

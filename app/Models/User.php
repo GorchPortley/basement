@@ -56,9 +56,9 @@ class User extends Authenticatable
 //
     }
 
-    public function components()
+    public function drivers()
     {
-        return $this->morphMany(Component::class, 'owner');
+        return $this->morphMany(Driver::class, 'owner');
     }
 
     public function designs()
@@ -69,8 +69,8 @@ class User extends Authenticatable
     // designs where this user is a collaborator
     public function collaborations()
     {
-        return $this->morphToMany(Design::class, 'collaborator', 'design_collaborators')
-            ->using(DesignCollaborator::class)
+        return $this->morphToMany(Design::class, 'collaborator', 'collaborator_design')
+            ->using(CollaboratorDesign::class)
             ->withPivot('payload');
     }
 }
