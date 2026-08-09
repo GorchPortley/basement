@@ -13,14 +13,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // firstOrCreate so the seeder can be run again without blowing up on
+        // the unique email, same as the driver and design seeders below.
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            User::factory()->raw(['name' => 'Test User', 'email' => 'test@example.com']),
+        );
 
         $this->call([
             UserSeeder::class,
             DriverSeeder::class,
+            DesignSeeder::class,
         ]);
     }
 }

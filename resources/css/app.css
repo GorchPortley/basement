@@ -14,7 +14,7 @@
 
 /** daisyUI */
 @plugin "daisyui" {
-    themes: wireframe --default;
+    themes: cyberpunk --default, dracula --dark;
 }
 @custom-variant dark (&:where(.dark, .dark *));
 
